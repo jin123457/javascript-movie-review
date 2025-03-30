@@ -130,7 +130,8 @@ const ERROR = {
   TOO_MANY_REQUEST: "요청이 너무 많습니다. 잠시 후 다시 시도해주세요.",
   SERVER_REQUEST: "서버에 문제가 발생했습니다. 잠시 후 다시 시도해주세요.",
   UNEXPECTED: "예상치 못한 오류가 발생했습니다. 다시 시도해주세요.",
-  NETWORK: "네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요."
+  NETWORK: "네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.",
+  NO_SEARCH_RESULTS: "검색 결과가 없습니다."
 };
 const httpErrorStatus = (status) => {
   switch (status) {
@@ -185,8 +186,8 @@ const getAppClient = (query, params) => {
 const getPopularMovies = async (params) => {
   try {
     const movies = await getAppClient("/movie/popular", params);
-    if (movies.length === 0) {
-      throw Error(ERROR.NOT_FOUND);
+    if (movies.results.length === 0) {
+      throw Error(ERROR.NO_SEARCH_RESULTS);
     }
     const convertMovies = { ...movies, results: movies.results.map(convertMovieData) };
     return convertMovies;
@@ -315,8 +316,8 @@ const initMovies = async () => {
 const getSearchMovies = async (params) => {
   try {
     const movies = await getAppClient("/search/movie", params);
-    if (movies.length === 0) {
-      throw Error(ERROR.NOT_FOUND);
+    if (movies.results.length === 0) {
+      throw Error(ERROR.NO_SEARCH_RESULTS);
     }
     const convertMovies = { ...movies, results: movies.results.map(convertMovieData) };
     return convertMovies;
