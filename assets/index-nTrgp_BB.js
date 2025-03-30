@@ -350,81 +350,6 @@ const RATING_COMMENTS = {
   8: "재미있어요",
   10: "명작이에요"
 };
-function Banner({ movie }) {
-  const { backdropPath, voteAverage, title } = movie;
-  return createDOMElement({
-    tag: "header",
-    children: [
-      createDOMElement({
-        tag: "div",
-        className: "background-container",
-        children: [BackDrop({ backDropUrl: backdropPath }), TopRatedMovie({ voteAverage, title })]
-      })
-    ]
-  });
-}
-function BackDrop({ backDropUrl }) {
-  return createDOMElement({
-    tag: "div",
-    className: "overlay",
-    attributes: { "aria-hidden": "true" },
-    children: [
-      createDOMElement({
-        tag: "img",
-        attributes: { src: `${IMAGE_BASE_URL}/w1920/${backDropUrl}` }
-      })
-    ]
-  });
-}
-function TopRatedMovie({ voteAverage, title }) {
-  return createDOMElement({
-    tag: "div",
-    className: "top-rated-container",
-    children: [
-      createDOMElement({
-        tag: "div",
-        className: "top-rated-movie",
-        children: [
-          createDOMElement({
-            tag: "div",
-            className: "rate",
-            children: [
-              createDOMElement({
-                tag: "img",
-                className: "star",
-                attributes: { src: "images/star_empty.png" }
-              }),
-              createDOMElement({
-                tag: "span",
-                className: "rate-value",
-                textContent: voteAverage.toFixed(1)
-              })
-            ]
-          }),
-          createDOMElement({
-            tag: "div",
-            className: "title",
-            textContent: title
-          }),
-          Button({ text: "자세히보기", id: "bannerMovieButton", className: "primary" })
-        ]
-      })
-    ]
-  });
-}
-const renderBanner = async (movies) => {
-  const wrap = $("#wrap");
-  const hasBackdropMovies = movies.filter((movie) => movie.backdropPath !== null);
-  const bannerMovie = hasBackdropMovies.length ? hasBackdropMovies[0] : movies[0];
-  wrap == null ? void 0 : wrap.prepend(Banner({ movie: bannerMovie }));
-};
-const removeBanner = () => {
-  const banner = document.querySelector("header");
-  banner == null ? void 0 : banner.remove();
-  const main = document.querySelector("main");
-  if (!main) return;
-  main.classList.add("search-movie-main");
-};
 const convertMovieDetailData = (raw) => {
   return {
     id: raw.id,
@@ -767,16 +692,112 @@ const renderModal = async (movieDetail) => {
       modal.remove();
     }
   });
+  modal == null ? void 0 : modal.addEventListener("keydown", (e) => {
+    if (e.code === "Escape") {
+      modal == null ? void 0 : modal.close();
+      modal.remove();
+    }
+  });
   (_a = $("#closeModal")) == null ? void 0 : _a.addEventListener("click", () => {
     modal == null ? void 0 : modal.close();
     modal.remove();
   });
+};
+const handleMovieDetail = async (id) => {
+  const params = {
+    language: "ko-KR"
+  };
+  const movieDetail = await getMovieDetail(params, id);
+  if (movieDetail) {
+    renderModal(movieDetail);
+  }
+};
+function Banner({ movie }) {
+  const { backdropPath, voteAverage, title, id } = movie;
+  return createDOMElement({
+    tag: "header",
+    children: [
+      createDOMElement({
+        tag: "div",
+        className: "background-container",
+        children: [BackDrop({ backDropUrl: backdropPath }), TopRatedMovie({ voteAverage, title, id })]
+      })
+    ]
+  });
+}
+function BackDrop({ backDropUrl }) {
+  return createDOMElement({
+    tag: "div",
+    className: "overlay",
+    attributes: { "aria-hidden": "true" },
+    children: [
+      createDOMElement({
+        tag: "img",
+        attributes: { src: `${IMAGE_BASE_URL}/w1920/${backDropUrl}` }
+      })
+    ]
+  });
+}
+function TopRatedMovie({ voteAverage, title, id }) {
+  return createDOMElement({
+    tag: "div",
+    className: "top-rated-container",
+    children: [
+      createDOMElement({
+        tag: "div",
+        className: "top-rated-movie",
+        children: [
+          createDOMElement({
+            tag: "div",
+            className: "rate",
+            children: [
+              createDOMElement({
+                tag: "img",
+                className: "star",
+                attributes: { src: "images/star_empty.png" }
+              }),
+              createDOMElement({
+                tag: "span",
+                className: "rate-value",
+                textContent: voteAverage.toFixed(1)
+              })
+            ]
+          }),
+          createDOMElement({
+            tag: "div",
+            className: "title",
+            textContent: title
+          }),
+          Button({
+            text: "자세히보기",
+            id: "bannerMovieButton",
+            className: "primary",
+            onClick: () => handleMovieDetail(id)
+          })
+        ]
+      })
+    ]
+  });
+}
+const renderBanner = async (movies) => {
+  const wrap = $("#wrap");
+  const hasBackdropMovies = movies.filter((movie) => movie.backdropPath !== null);
+  const bannerMovie = hasBackdropMovies.length ? hasBackdropMovies[0] : movies[0];
+  wrap == null ? void 0 : wrap.prepend(Banner({ movie: bannerMovie }));
+};
+const removeBanner = () => {
+  const banner = document.querySelector("header");
+  banner == null ? void 0 : banner.remove();
+  const main = document.querySelector("main");
+  if (!main) return;
+  main.classList.add("search-movie-main");
 };
 function Movie({ movie }) {
   const posterPath = movie.posterPath ? IMAGE_BASE_URL + "/w440_and_h660_face/" + movie.posterPath : DEFAULT_IMAGE_URL;
   return createDOMElement({
     tag: "li",
     className: "item",
+    attributes: { tabIndex: "0", role: "button" },
     children: [
       createDOMElement({
         tag: "img",
@@ -814,20 +835,17 @@ function Movie({ movie }) {
     ],
     event: {
       click: () => {
-        handleMovieItemClick(movie.id);
+        handleMovieDetail(movie.id);
+      },
+      keydown: (e) => {
+        const keyboardEvent = e;
+        if (keyboardEvent.code === "Enter") {
+          handleMovieDetail(movie.id);
+        }
       }
     }
   });
 }
-const handleMovieItemClick = async (id) => {
-  const params = {
-    language: "ko-KR"
-  };
-  const movieDetail = await getMovieDetail(params, id);
-  if (movieDetail) {
-    renderModal(movieDetail);
-  }
-};
 const searchAddMovies = async (page, keyword) => {
   const params = {
     page: page.toString(),
@@ -939,7 +957,7 @@ function SearchBar() {
     children: [
       createDOMElement({
         tag: "input",
-        attributes: { placeholder: "검색어를 입력하세요", type: "text", name: "keyword" }
+        attributes: { placeholder: "검색어를 입력하세요", type: "text", name: "keyword", required: "true" }
       }),
       createDOMElement({
         tag: "button",
@@ -981,13 +999,13 @@ function Header() {
     children: [
       createDOMElement({
         tag: "a",
+        className: "logo-img",
         attributes: {
           href: "/javascript-movie-review"
         },
         children: [
           createDOMElement({
             tag: "img",
-            className: "logo-img",
             attributes: {
               src: "images/logo.png",
               alt: "MovieList"

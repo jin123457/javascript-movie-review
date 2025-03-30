@@ -570,6 +570,21 @@ footer.footer p:not(:last-child) {
     font-size: 1.5rem;
     text-align: center;
   }
+  .background-container {
+    height: 340px;
+    padding: 0;
+  }
+  .top-rated-container {
+    width: 90%;
+    padding: 126px 0 0 0;
+  }
+  .top-rated-movie,
+  .rate {
+    margin: 0;
+  }
+  .title {
+    font-size: 2rem;
+  }
 }
 :root {
   --color-white: #ffffff;
@@ -937,11 +952,22 @@ dialog[open] {
   .modal-image {
     display: none;
   }
+  .modal-description {
+    padding: 40px 0 28px;
+  }
   .rate-form {
     flex-direction: column;
   }
   .rate-box {
     margin: 0 0 1rem 0;
+  }
+
+  .detail {
+    max-height: 150px;
+  }
+
+  .modal-description h2 {
+    font-size: 1.5rem;
   }
 }
 .movie-skeleton {
@@ -1099,5 +1125,15 @@ dialog[open] {
 @keyframes load {
   100% {
     background-position: -100% 0;
+  }
+}
+
+@media screen and (max-width: 940px) {
+  .modal-skeleton {
+    width: 100%;
+    bottom: 0;
+    top: auto;
+    transform: translate(-50%, 0);
+    height: 50vh;
   }
 }
