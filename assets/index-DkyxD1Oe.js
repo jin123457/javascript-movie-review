@@ -732,6 +732,10 @@ function BackDrop({ backDropUrl }) {
     attributes: { "aria-hidden": "true" },
     children: [
       createDOMElement({
+        tag: "div",
+        className: "overlay"
+      }),
+      createDOMElement({
         tag: "img",
         attributes: { src: `${IMAGE_BASE_URL}/w1920/${backDropUrl}` }
       })
